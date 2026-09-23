@@ -650,6 +650,8 @@ th,td{
 
 <body>
 
+<div id="supabaseNotice" style="display:none;position:fixed;right:18px;bottom:18px;z-index:99;background:#332d25;color:#f0e5d5;border:1px solid #665238;padding:12px 16px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);font-size:13px">⚠️ Supabase belum dikonfigurasi. Data sementara disimpan di browser.</div>
+
 <div class="app">
 
 <!-- SIDEBAR -->
@@ -1200,11 +1202,22 @@ th,td{
 
 const SUPABASE_URL = "GANTI_DENGAN_SUPABASE_URL";
 const SUPABASE_ANON_KEY = "GANTI_DENGAN_SUPABASE_ANON_KEY";
+const STORAGE_KEY = "weddingPlannerData_v2";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+let supabaseClient = null;
+const SUPABASE_READY =
+  SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("GANTI_DENGAN") &&
+  SUPABASE_ANON_KEY &&
+  !SUPABASE_ANON_KEY.includes("GANTI_DENGAN");
+
+if(SUPABASE_READY && window.supabase){
+  try{
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }catch(error){
+    console.error("Konfigurasi Supabase tidak valid:", error);
+  }
+}
 
 const defaultData = {
   wedding: {
@@ -1222,6 +1235,16 @@ const defaultData = {
 let data = structuredClone(defaultData);
 
 async function loadDataFromSupabase(){
+  // Selalu ambil backup lokal terlebih dahulu agar aplikasi tetap bisa dipakai.
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(saved){
+      data = {...structuredClone(defaultData), ...saved};
+    }
+  }catch(e){}
+
+  if(!supabaseClient) return;
+
   try{
     const { data: row, error } = await supabaseClient
       .from("wedding_data")
@@ -1232,18 +1255,25 @@ async function loadDataFromSupabase(){
     if(error) throw error;
 
     if(row?.data){
-      data = {
-        ...structuredClone(defaultData),
-        ...row.data
-      };
+      data = {...structuredClone(defaultData), ...row.data};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
   }catch(error){
     console.error("Gagal mengambil data dari Supabase:", error);
-    alert("Data Supabase belum bisa dimuat. Periksa URL, Anon Key, tabel, dan RLS.");
+    console.warn("Aplikasi memakai data lokal sebagai cadangan.");
   }
 }
 
 async function saveData(){
+  // Simpan lokal terlebih dahulu supaya tombol Simpan tetap bekerja.
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateDashboard();
+
+  if(!supabaseClient){
+    console.warn("Supabase belum dikonfigurasi. Data tersimpan di browser.");
+    return;
+  }
+
   try{
     const { error } = await supabaseClient
       .from("wedding_data")
@@ -1251,14 +1281,13 @@ async function saveData(){
         id: 1,
         data: data,
         updated_at: new Date().toISOString()
-      });
+      }, {onConflict:"id"});
 
     if(error) throw error;
-
-    updateDashboard();
+    console.log("Data berhasil disimpan ke Supabase.");
   }catch(error){
     console.error("Gagal menyimpan ke Supabase:", error);
-    alert("Gagal menyimpan data ke Supabase. Periksa koneksi dan RLS.");
+    alert("Data tersimpan di browser, tetapi belum masuk Supabase. Cek URL, key, tabel wedding_data, dan RLS.");
   }
 }
 
@@ -1602,10 +1631,18 @@ function importData(){
   input.click();
 }
 
-function clearAllData(){
+async function clearAllData(){
   if(!confirm("Hapus SEMUA data Wedding Planner?")) return;
-  localStorage.removeItem(STORAGE_KEY);
   data=structuredClone(defaultData);
+  localStorage.removeItem(STORAGE_KEY);
+  if(supabaseClient){
+    try{
+      const {error}=await supabaseClient.from("wedding_data").delete().eq("id",1);
+      if(error) throw error;
+    }catch(error){
+      console.error("Gagal menghapus data Supabase:",error);
+    }
+  }
   renderAll(); fillWeddingForm();
   document.getElementById("notes").value="";
   alert("Semua data telah dihapus.");
@@ -1621,6 +1658,10 @@ function renderAll(){
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
+  if(!SUPABASE_READY){
+    document.getElementById("supabaseNotice").style.display="block";
+    setTimeout(()=>document.getElementById("supabaseNotice").style.display="none",6000);
+  }
   document.getElementById("today").textContent =
     new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
 
