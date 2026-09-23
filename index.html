@@ -280,24 +280,6 @@ input:focus,select:focus,textarea:focus{
 }
 
 /* BUTTON */
-.saving-quick{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:10px;
-}
-.saving-quick button{
-  border:1px solid var(--border);
-  background:#29251f;
-  color:#e0bd7c;
-  padding:8px 12px;
-  border-radius:9px;
-  cursor:pointer;
-}
-.saving-quick button:hover{
-  background:#3a3228;
-}
-
 .btn{
   border:0;
   background:linear-gradient(135deg,var(--primary),#c2a06a);
@@ -714,11 +696,8 @@ th,td{
       <span>📋</span> Rundown
     </button>
 
-    <button onclick="showSection('tabungan',this)">
-      <span>🏦</span> Tabungan
-    </button>
-
-    <button onclick="showSection('catatan',this)">
+    <button onclick="showSection('tabungan',this)"><span>🏦</span> Tabungan</button>
+<button onclick="showSection('catatan',this)">
       <span>📝</span> Catatan
     </button>
   </nav>
@@ -775,6 +754,12 @@ th,td{
   <div class="grid">
 
     <div class="stat">
+  <div class="icon">🏦</div>
+  <div class="label">Saldo Tabungan</div>
+  <div class="value" id="dashSaving">Rp 0</div>
+  <small>Target: <span id="dashSavingTarget">Rp 0</span></small>
+</div>
+<div class="stat">
       <div class="icon">💰</div>
       <div class="label">Total Budget</div>
       <div class="value" id="dashBudget">Rp 0</div>
@@ -790,13 +775,6 @@ th,td{
       <div class="icon">👥</div>
       <div class="label">Jumlah Tamu</div>
       <div class="value" id="dashGuests">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="icon">🏦</div>
-      <div class="label">Tabungan Terkumpul</div>
-      <div class="value" id="dashSaving">Rp 0</div>
-      <small>Target: <span id="dashSavingTarget">Rp 0</span></small>
     </div>
 
   </div>
@@ -1203,10 +1181,109 @@ th,td{
 
 <!-- TABUNGAN -->
 <section id="tabungan" class="section">
-<div class="card"><h3>🏦 Tabungan Pernikahan</h3><div class="grid"><div class="stat"><div class="icon">🎯</div><div class="label">Target Tabungan</div><div class="value" id="savingTargetDisplay">Rp 0</div></div><div class="stat"><div class="icon">💰</div><div class="label">Total Terkumpul</div><div class="value" id="savingTotalDisplay">Rp 0</div></div><div class="stat"><div class="icon">📈</div><div class="label">Progress</div><div class="value" id="savingProgressDisplay">0%</div></div></div><br><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Progress Tabungan</span><strong id="savingProgressText">0%</strong></div><div class="progress"><div class="progress-bar" id="savingProgressBar" style="width:0%"></div></div></div>
-<div class="card"><h3>🎯 Atur Target</h3><div class="form-grid"><div class="form-group"><label>Target Tabungan</label><input type="number" id="savingTarget" placeholder="50000000"></div></div><br><button class="btn" onclick="saveSavingTarget()">Simpan Target</button></div>
-<div class="card"><h3>➕ Tambah Tabungan</h3><div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="savingDate"></div><div class="form-group"><label>Jumlah</label><input type="number" id="savingAmount" placeholder="1000000"><div class="saving-quick"><button type="button" onclick="setSavingAmount(50000)">50 Ribu</button><button type="button" onclick="setSavingAmount(100000)">100 Ribu</button><button type="button" onclick="setSavingAmount(500000)">500 Ribu</button><button type="button" onclick="setSavingAmount(1000000)">1 Juta</button></div></div><div class="form-group full"><label>Keterangan</label><input id="savingNote" placeholder="Contoh: Tabungan bulan September"></div></div><br><button class="btn" onclick="addSaving()">+ Tambah Tabungan</button></div>
-<div class="card"><h3>📋 Riwayat Tabungan</h3><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="savingTable"></tbody></table></div></div>
+  <div class="section-head">
+    <div>
+      <h2>🏦 Tabungan Pernikahan</h2>
+      <p class="muted">Kelola uang yang ditabung dan uang yang sudah digunakan.</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="icon">🎯</div>
+      <div class="label">Target Tabungan</div>
+      <div class="value" id="savingTargetDisplay">Rp 0</div>
+    </div>
+    <div class="stat">
+      <div class="icon">💰</div>
+      <div class="label">Saldo Tabungan</div>
+      <div class="value" id="savingTotalDisplay">Rp 0</div>
+    </div>
+    <div class="stat">
+      <div class="icon">📈</div>
+      <div class="label">Progress</div>
+      <div class="value" id="savingProgressDisplay">0%</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>🎯 Target Tabungan</h3>
+    <form onsubmit="saveSavingTarget();return false;">
+      <label>Target</label>
+      <input type="number" id="savingTarget" min="0" placeholder="Contoh: 20000000" required>
+      <button class="btn primary" type="submit" style="margin-top:10px;">Simpan Target</button>
+    </form>
+
+    <div style="margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;gap:10px;">
+        <span>Progress target</span>
+        <strong id="savingProgressText">0%</strong>
+      </div>
+      <div style="height:10px;background:rgba(255,255,255,.10);border-radius:99px;overflow:hidden;margin-top:8px;">
+        <div id="savingProgressBar" style="width:0%;height:100%;transition:.3s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>➕ Tambah Tabungan</h3>
+    <form onsubmit="addSaving();return false;">
+      <label>Tanggal</label>
+      <input type="date" id="savingDate" required>
+
+      <label>Jumlah</label>
+      <input type="number" id="savingAmount" min="1" placeholder="Contoh: 500000" required>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">
+        <button type="button" class="btn" onclick="setSavingAmount(50000)">Rp50.000</button>
+        <button type="button" class="btn" onclick="setSavingAmount(100000)">Rp100.000</button>
+        <button type="button" class="btn" onclick="setSavingAmount(500000)">Rp500.000</button>
+        <button type="button" class="btn" onclick="setSavingAmount(1000000)">Rp1.000.000</button>
+      </div>
+
+      <label>Keterangan</label>
+      <input type="text" id="savingNote" placeholder="Contoh: Menabung mingguan">
+
+      <button class="btn primary" type="submit" style="margin-top:10px;">💰 Tambah Tabungan</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>💸 Gunakan Tabungan</h3>
+    <p class="muted">Catat uang tabungan yang dipakai untuk kebutuhan pernikahan.</p>
+    <form onsubmit="useSaving();return false;">
+      <label>Tanggal</label>
+      <input type="date" id="useSavingDate" required>
+
+      <label>Jumlah yang Digunakan</label>
+      <input type="number" id="useSavingAmount" min="1" placeholder="Contoh: 500000" required>
+
+      <label>Digunakan Untuk</label>
+      <input type="text" id="useSavingNote" placeholder="Contoh: DP dekorasi" required>
+
+      <button class="btn danger" type="submit" style="margin-top:10px;">💸 Kurangi Tabungan</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:18px;">
+    <h3>📋 Riwayat Tabungan</h3>
+    <div style="overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Jenis</th>
+            <th>Jumlah</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="savingTable">
+          <tr><td colspan="5" class="empty">Belum ada transaksi tabungan.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
 <!-- CATATAN -->
@@ -1587,14 +1664,153 @@ function renderRundown(){
     </tr>`).join("");
 }
 
+function saveSavingTarget(){
+  const input=document.getElementById("savingTarget");
+  const target=Number(input?.value)||0;
+  if(target<0){ alert("Target tidak boleh negatif."); return; }
+  data.savingTarget=target;
+  saveData();
+  renderSavings();
+  alert("Target tabungan berhasil disimpan.");
+}
+
 function setSavingAmount(amount){
   const input=document.getElementById("savingAmount");
   if(input) input.value=amount;
 }
-function saveSavingTarget(){ const target=Number(document.getElementById("savingTarget").value)||0; if(target<0){alert("Target tidak boleh negatif.");return;} data.savingTarget=target; saveData(); renderSavings(); alert("Target tabungan berhasil disimpan."); }
-function addSaving(){ const date=document.getElementById("savingDate").value||new Date().toISOString().slice(0,10); const amount=Number(document.getElementById("savingAmount").value)||0; const note=document.getElementById("savingNote").value.trim(); if(amount<=0){alert("Masukkan jumlah tabungan.");return;} data.savings.push({id:Date.now(),date,amount,note}); document.getElementById("savingAmount").value=""; document.getElementById("savingNote").value=""; saveData(); renderSavings(); }
-function deleteSaving(id){ if(!confirm("Hapus catatan tabungan ini?"))return; data.savings=data.savings.filter(x=>x.id!==id); saveData(); renderSavings(); }
-function renderSavings(){ const target=Number(data.savingTarget)||0; const total=(data.savings||[]).reduce((sum,x)=>sum+Number(x.amount||0),0); const progress=target>0?Math.min(100,Math.round(total/target*100)):0; [ ["savingTargetDisplay",rupiah(target)],["savingTotalDisplay",rupiah(total)],["savingProgressDisplay",progress+"%"],["savingProgressText",progress+"%"] ].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v}); const bar=document.getElementById("savingProgressBar");if(bar)bar.style.width=progress+"%"; const input=document.getElementById("savingTarget");if(input&&document.activeElement!==input)input.value=target||""; const tbody=document.getElementById("savingTable");if(!tbody)return; if(!(data.savings||[]).length){tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada tabungan.</td></tr>';return;} tbody.innerHTML=[...(data.savings||[])].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${esc(formatDate(x.date))}</td><td>${rupiah(x.amount)}</td><td>${esc(x.note)}</td><td><button class="btn danger" onclick="deleteSaving(${x.id})">Hapus</button></td></tr>`).join(""); }
+
+function addSaving(){
+  const date=document.getElementById("savingDate").value || new Date().toISOString().slice(0,10);
+  const amount=Number(document.getElementById("savingAmount").value)||0;
+  const note=document.getElementById("savingNote").value.trim();
+
+  if(amount<=0){ alert("Masukkan jumlah tabungan."); return; }
+
+  if(!Array.isArray(data.savings)) data.savings=[];
+
+  data.savings.push({
+    id:Date.now(),
+    date,
+    amount:Math.abs(amount),
+    note:note || "Menabung",
+    type:"in"
+  });
+
+  document.getElementById("savingAmount").value="";
+  document.getElementById("savingNote").value="";
+  saveData();
+  renderAll();
+}
+
+function useSaving(){
+  const date=document.getElementById("useSavingDate").value || new Date().toISOString().slice(0,10);
+  const amount=Number(document.getElementById("useSavingAmount").value)||0;
+  const note=document.getElementById("useSavingNote").value.trim();
+
+  if(amount<=0){ alert("Masukkan jumlah yang digunakan."); return; }
+
+  if(!Array.isArray(data.savings)) data.savings=[];
+
+  const balance=data.savings.reduce((sum,x)=>{
+    const value=Math.abs(Number(x.amount)||0);
+    return sum + (x.type==="out" ? -value : value);
+  },0);
+
+  if(amount>balance){
+    alert("Saldo tabungan tidak cukup.\n\nSaldo saat ini: "+rupiah(balance));
+    return;
+  }
+
+  data.savings.push({
+    id:Date.now(),
+    date,
+    amount:Math.abs(amount),
+    note:note || "Penggunaan tabungan",
+    type:"out"
+  });
+
+  document.getElementById("useSavingAmount").value="";
+  document.getElementById("useSavingNote").value="";
+  saveData();
+  renderAll();
+
+  alert("Tabungan berhasil digunakan sebesar "+rupiah(amount)+".");
+}
+
+function deleteSaving(id){
+  if(!confirm("Hapus transaksi tabungan ini?")) return;
+  data.savings=(data.savings||[]).filter(x=>x.id!==id);
+  saveData();
+  renderAll();
+}
+
+function renderSavings(){
+  const target=Number(data.savingTarget)||0;
+
+  const balance=(data.savings||[]).reduce((sum,x)=>{
+    const value=Math.abs(Number(x.amount)||0);
+    return sum + (x.type==="out" ? -value : value);
+  },0);
+
+  const totalIn=(data.savings||[]).reduce((sum,x)=>{
+    return sum + (x.type==="out" ? 0 : Math.abs(Number(x.amount)||0));
+  },0);
+
+  const totalOut=(data.savings||[]).reduce((sum,x)=>{
+    return sum + (x.type==="out" ? Math.abs(Number(x.amount)||0) : 0);
+  },0);
+
+  const progress=target>0 ? Math.min(100,Math.round(Math.max(0,balance)/target*100)) : 0;
+
+  [
+    ["savingTargetDisplay",rupiah(target)],
+    ["savingTotalDisplay",rupiah(balance)],
+    ["savingProgressDisplay",progress+"%"],
+    ["savingProgressText",progress+"%"]
+  ].forEach(([id,value])=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=value;
+  });
+
+  const bar=document.getElementById("savingProgressBar");
+  if(bar) bar.style.width=progress+"%";
+
+  const input=document.getElementById("savingTarget");
+  if(input && document.activeElement!==input) input.value=target||"";
+
+  const tbody=document.getElementById("savingTable");
+  if(!tbody) return;
+
+  if(!(data.savings||[]).length){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Belum ada transaksi tabungan.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=[...(data.savings||[])]
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)))
+    .map(x=>{
+      const out=x.type==="out";
+      const amount=Math.abs(Number(x.amount)||0);
+      return `<tr>
+        <td>${esc(formatDate(x.date))}</td>
+        <td><span class="badge ${out?"red":"green"}">${out?"🔴 Keluar":"🟢 Masuk"}</span></td>
+        <td style="font-weight:700;white-space:nowrap;">${out?"- ":"+ "}${rupiah(amount)}</td>
+        <td>${esc(x.note||"")}</td>
+        <td><button class="btn danger" onclick="deleteSaving(${x.id})">Hapus</button></td>
+      </tr>`;
+    }).join("");
+
+  // Ringkasan kecil di bawah tabel, jika elemen tersedia.
+  const summary=document.getElementById("savingSummary");
+  if(summary){
+    summary.innerHTML=`
+      <div><strong>Total masuk:</strong> ${rupiah(totalIn)}</div>
+      <div><strong>Total digunakan:</strong> ${rupiah(totalOut)}</div>
+      <div><strong>Saldo:</strong> ${rupiah(balance)}</div>
+    `;
+  }
+}
+
 function saveNotes(){
   data.notes=document.getElementById("notes").value;
   saveData();
@@ -1612,14 +1828,12 @@ function updateDashboard(){
   document.getElementById("dashBudget").textContent=rupiah(total);
   document.getElementById("dashPaid").textContent=rupiah(paid);
   document.getElementById("dashGuests").textContent=guests;
-
-  const savingTotal=(data.savings||[]).reduce((s,x)=>s+Number(x.amount||0),0);
-  const savingTarget=Number(data.savingTarget)||0;
-  const dashSaving=document.getElementById("dashSaving");
-  const dashSavingTarget=document.getElementById("dashSavingTarget");
-  if(dashSaving) dashSaving.textContent=rupiah(savingTotal);
-  if(dashSavingTarget) dashSavingTarget.textContent=rupiah(savingTarget);
-
+  const savingBalance=(data.savings||[]).reduce((sum,x)=>{
+    const value=Math.abs(Number(x.amount)||0);
+    return sum + (x.type==="out" ? -value : value);
+  },0);
+  document.getElementById("dashSaving").textContent=rupiah(savingBalance);
+  document.getElementById("dashSavingTarget").textContent=rupiah(Number(data.savingTarget)||0);
   document.getElementById("progressText").textContent=progress+"%";
   document.getElementById("progressBar").style.width=progress+"%";
 
