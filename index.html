@@ -280,6 +280,24 @@ input:focus,select:focus,textarea:focus{
 }
 
 /* BUTTON */
+.saving-quick{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.saving-quick button{
+  border:1px solid var(--border);
+  background:#29251f;
+  color:#e0bd7c;
+  padding:8px 12px;
+  border-radius:9px;
+  cursor:pointer;
+}
+.saving-quick button:hover{
+  background:#3a3228;
+}
+
 .btn{
   border:0;
   background:linear-gradient(135deg,var(--primary),#c2a06a);
@@ -696,6 +714,10 @@ th,td{
       <span>📋</span> Rundown
     </button>
 
+    <button onclick="showSection('tabungan',this)">
+      <span>🏦</span> Tabungan
+    </button>
+
     <button onclick="showSection('catatan',this)">
       <span>📝</span> Catatan
     </button>
@@ -768,6 +790,13 @@ th,td{
       <div class="icon">👥</div>
       <div class="label">Jumlah Tamu</div>
       <div class="value" id="dashGuests">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="icon">🏦</div>
+      <div class="label">Tabungan Terkumpul</div>
+      <div class="value" id="dashSaving">Rp 0</div>
+      <small>Target: <span id="dashSavingTarget">Rp 0</span></small>
     </div>
 
   </div>
@@ -1172,6 +1201,14 @@ th,td{
 </section>
 
 
+<!-- TABUNGAN -->
+<section id="tabungan" class="section">
+<div class="card"><h3>🏦 Tabungan Pernikahan</h3><div class="grid"><div class="stat"><div class="icon">🎯</div><div class="label">Target Tabungan</div><div class="value" id="savingTargetDisplay">Rp 0</div></div><div class="stat"><div class="icon">💰</div><div class="label">Total Terkumpul</div><div class="value" id="savingTotalDisplay">Rp 0</div></div><div class="stat"><div class="icon">📈</div><div class="label">Progress</div><div class="value" id="savingProgressDisplay">0%</div></div></div><br><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Progress Tabungan</span><strong id="savingProgressText">0%</strong></div><div class="progress"><div class="progress-bar" id="savingProgressBar" style="width:0%"></div></div></div>
+<div class="card"><h3>🎯 Atur Target</h3><div class="form-grid"><div class="form-group"><label>Target Tabungan</label><input type="number" id="savingTarget" placeholder="50000000"></div></div><br><button class="btn" onclick="saveSavingTarget()">Simpan Target</button></div>
+<div class="card"><h3>➕ Tambah Tabungan</h3><div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="savingDate"></div><div class="form-group"><label>Jumlah</label><input type="number" id="savingAmount" placeholder="1000000"><div class="saving-quick"><button type="button" onclick="setSavingAmount(50000)">50 Ribu</button><button type="button" onclick="setSavingAmount(100000)">100 Ribu</button><button type="button" onclick="setSavingAmount(500000)">500 Ribu</button><button type="button" onclick="setSavingAmount(1000000)">1 Juta</button></div></div><div class="form-group full"><label>Keterangan</label><input id="savingNote" placeholder="Contoh: Tabungan bulan September"></div></div><br><button class="btn" onclick="addSaving()">+ Tambah Tabungan</button></div>
+<div class="card"><h3>📋 Riwayat Tabungan</h3><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody id="savingTable"></tbody></table></div></div>
+</section>
+
 <!-- CATATAN -->
 <section id="catatan" class="section">
 
@@ -1229,6 +1266,8 @@ const defaultData = {
   guests: [],
   checklist: [],
   rundown: [],
+  savings: [],
+  savingTarget: 0,
   notes: ""
 };
 
@@ -1314,7 +1353,7 @@ function showSection(id, btn){
   const titles = {
     dashboard:"Dashboard", data:"Data Pernikahan", budget:"Budget",
     vendor:"Vendor", tamu:"Daftar Tamu", checklist:"Checklist",
-    timeline:"Timeline", rundown:"Rundown", catatan:"Catatan"
+    timeline:"Timeline", rundown:"Rundown", catatan:"Catatan", tabungan:"Tabungan"
   };
   document.getElementById("pageTitle").textContent = titles[id] || "Wedding Planner";
 
@@ -1548,6 +1587,14 @@ function renderRundown(){
     </tr>`).join("");
 }
 
+function setSavingAmount(amount){
+  const input=document.getElementById("savingAmount");
+  if(input) input.value=amount;
+}
+function saveSavingTarget(){ const target=Number(document.getElementById("savingTarget").value)||0; if(target<0){alert("Target tidak boleh negatif.");return;} data.savingTarget=target; saveData(); renderSavings(); alert("Target tabungan berhasil disimpan."); }
+function addSaving(){ const date=document.getElementById("savingDate").value||new Date().toISOString().slice(0,10); const amount=Number(document.getElementById("savingAmount").value)||0; const note=document.getElementById("savingNote").value.trim(); if(amount<=0){alert("Masukkan jumlah tabungan.");return;} data.savings.push({id:Date.now(),date,amount,note}); document.getElementById("savingAmount").value=""; document.getElementById("savingNote").value=""; saveData(); renderSavings(); }
+function deleteSaving(id){ if(!confirm("Hapus catatan tabungan ini?"))return; data.savings=data.savings.filter(x=>x.id!==id); saveData(); renderSavings(); }
+function renderSavings(){ const target=Number(data.savingTarget)||0; const total=(data.savings||[]).reduce((sum,x)=>sum+Number(x.amount||0),0); const progress=target>0?Math.min(100,Math.round(total/target*100)):0; [ ["savingTargetDisplay",rupiah(target)],["savingTotalDisplay",rupiah(total)],["savingProgressDisplay",progress+"%"],["savingProgressText",progress+"%"] ].forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v}); const bar=document.getElementById("savingProgressBar");if(bar)bar.style.width=progress+"%"; const input=document.getElementById("savingTarget");if(input&&document.activeElement!==input)input.value=target||""; const tbody=document.getElementById("savingTable");if(!tbody)return; if(!(data.savings||[]).length){tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada tabungan.</td></tr>';return;} tbody.innerHTML=[...(data.savings||[])].sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(x=>`<tr><td>${esc(formatDate(x.date))}</td><td>${rupiah(x.amount)}</td><td>${esc(x.note)}</td><td><button class="btn danger" onclick="deleteSaving(${x.id})">Hapus</button></td></tr>`).join(""); }
 function saveNotes(){
   data.notes=document.getElementById("notes").value;
   saveData();
@@ -1565,6 +1612,14 @@ function updateDashboard(){
   document.getElementById("dashBudget").textContent=rupiah(total);
   document.getElementById("dashPaid").textContent=rupiah(paid);
   document.getElementById("dashGuests").textContent=guests;
+
+  const savingTotal=(data.savings||[]).reduce((s,x)=>s+Number(x.amount||0),0);
+  const savingTarget=Number(data.savingTarget)||0;
+  const dashSaving=document.getElementById("dashSaving");
+  const dashSavingTarget=document.getElementById("dashSavingTarget");
+  if(dashSaving) dashSaving.textContent=rupiah(savingTotal);
+  if(dashSavingTarget) dashSavingTarget.textContent=rupiah(savingTarget);
+
   document.getElementById("progressText").textContent=progress+"%";
   document.getElementById("progressBar").style.width=progress+"%";
 
@@ -1654,6 +1709,7 @@ function renderAll(){
   renderGuests();
   renderChecklist();
   renderRundown();
+  renderSavings();
   updateDashboard();
 }
 
@@ -1670,6 +1726,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   fillWeddingForm();
   document.getElementById("notes").value=data.notes||"";
+  const savingDate=document.getElementById("savingDate"); if(savingDate) savingDate.value=new Date().toISOString().slice(0,10);
   renderAll();
   countdown();
   setInterval(countdown,1000);
