@@ -646,6 +646,11 @@ th,td{
 </style>
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Export libraries: PDF + Excel/CSV/ODS -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -1869,13 +1874,190 @@ function countdown(){
   document.getElementById("seconds").textContent=Math.floor(diff%60000/1000);
 }
 
-function exportData(){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+function getSavingsRows(){
+  const rows=[];
+  rows.push(["TABUNGAN"]);
+  rows.push(["Target Tabungan",Number(data.savingTarget)||0]);
+  rows.push([]);
+  rows.push(["Tanggal","Jenis","Jumlah","Keterangan"]);
+  (data.savings||[]).forEach(x=>rows.push([
+    x.date||"",
+    x.type==="out"?"Keluar":"Masuk",
+    Number(x.amount)||0,
+    x.note||""
+  ]));
+  return rows;
+}
+
+function downloadBlob(blob, filename){
+  const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="wedding-planner-backup.json";
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(a.href);
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function exportSavingsCSV(){
+  const rows=getSavingsRows();
+  const csv=rows.map(row=>row.map(v=>{
+    const str=String(v??"");
+    return /[",\n]/.test(str) ? '"'+str.replace(/"/g,'""')+'"' : str;
+  }).join(",")).join("\r\n");
+  downloadBlob(
+    new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}),
+    "tabungan-wedding-planner.csv"
+  );
+}
+
+function exportSavingsExcel(){
+  if(typeof XLSX==="undefined"){
+    alert("Library Excel belum termuat. Pastikan internet aktif.");
+    return;
+  }
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(getSavingsRows());
+  ws["!cols"]=[
+    {wch:18},{wch:16},{wch:20},{wch:40}
+  ];
+  XLSX.utils.book_append_sheet(wb,ws,"Tabungan");
+  XLSX.writeFile(wb,"tabungan-wedding-planner.xlsx");
+}
+
+function exportSavingsODS(){
+  if(typeof XLSX==="undefined"){
+    alert("Library ODS belum termuat. Pastikan internet aktif.");
+    return;
+  }
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(getSavingsRows());
+  ws["!cols"]=[
+    {wch:18},{wch:16},{wch:20},{wch:40}
+  ];
+  XLSX.utils.book_append_sheet(wb,ws,"Tabungan");
+  XLSX.writeFile(wb,"tabungan-wedding-planner.ods",{bookType:"ods"});
+}
+
+function exportSavingsPDF(){
+  if(!window.jspdf){
+    alert("Library PDF belum termuat. Pastikan internet aktif.");
+    return;
+  }
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({
+    orientation:"portrait",
+    unit:"mm",
+    format:"a4"
+  });
+
+  const target=Number(data.savingTarget)||0;
+  const savings=data.savings||[];
+  const totalMasuk=savings
+    .filter(x=>x.type!=="out")
+    .reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+  const totalKeluar=savings
+    .filter(x=>x.type==="out")
+    .reduce((sum,x)=>sum+(Number(x.amount)||0),0);
+  const saldo=totalMasuk-totalKeluar;
+
+  doc.setFontSize(18);
+  doc.text("LAPORAN TABUNGAN",14,15);
+  doc.setFontSize(10);
+  doc.text("Wedding Planner",14,22);
+  doc.text("Dicetak: "+new Date().toLocaleString("id-ID"),14,28);
+
+  doc.autoTable({
+    startY:34,
+    head:[["Ringkasan","Jumlah"]],
+    body:[
+      ["Target Tabungan",rupiah(target)],
+      ["Total Masuk",rupiah(totalMasuk)],
+      ["Total Keluar",rupiah(totalKeluar)],
+      ["Saldo Tabungan",rupiah(saldo)]
+    ],
+    theme:"grid",
+    styles:{fontSize:9,cellPadding:2.5},
+    headStyles:{fillColor:[100,82,55]},
+    margin:{left:14,right:14}
+  });
+
+  let y=doc.lastAutoTable.finalY+10;
+  doc.setFontSize(12);
+  doc.text("Riwayat Tabungan",14,y);
+  y+=4;
+
+  doc.autoTable({
+    startY:y,
+    head:[["Tanggal","Jenis","Jumlah","Keterangan"]],
+    body:savings.map(x=>[
+      x.date||"-",
+      x.type==="out"?"Keluar":"Masuk",
+      rupiah(x.amount),
+      x.note||""
+    ]),
+    theme:"grid",
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[100,82,55]},
+    columnStyles:{
+      0:{cellWidth:30},
+      1:{cellWidth:25},
+      2:{cellWidth:40},
+      3:{cellWidth:"auto"}
+    },
+    margin:{left:14,right:14}
+  });
+
+  doc.save("tabungan-wedding-planner.pdf");
+}
+
+function exportSavingsJSON(){
+  const savingsData={
+    savingTarget:Number(data.savingTarget)||0,
+    savings:data.savings||[]
+  };
+  const blob=new Blob(
+    [JSON.stringify(savingsData,null,2)],
+    {type:"application/json"}
+  );
+  downloadBlob(blob,"tabungan-wedding-planner.json");
+}
+
+function showExportMenu(){
+  const old=document.getElementById("exportMenu");
+  if(old){old.remove();return;}
+
+  const menu=document.createElement("div");
+  menu.id="exportMenu";
+  menu.style.cssText=
+    "position:fixed;right:20px;bottom:20px;z-index:999;"+
+    "background:#211e1a;border:1px solid #665238;border-radius:14px;"+
+    "padding:12px;box-shadow:0 15px 40px rgba(0,0,0,.45);min-width:240px";
+
+  menu.innerHTML=`
+    <div style="font-weight:700;color:#f0e5d5;margin:4px 8px 10px">
+      📤 Export Data Tabungan
+    </div>
+    <button class="btn" style="width:100%;margin:3px 0" onclick="exportSavingsPDF()">
+      📄 Export PDF
+    </button>
+    <button class="btn" style="width:100%;margin:3px 0" onclick="exportSavingsCSV()">
+      📊 Export CSV
+    </button>
+    <button class="btn" style="width:100%;margin:3px 0" onclick="exportSavingsExcel()">
+      📗 Export Excel (.xlsx)
+    </button>
+    <button class="btn" style="width:100%;margin:3px 0" onclick="exportSavingsODS()">
+      📘 Export ODS
+    </button>
+    <button class="btn secondary" style="width:100%;margin:3px 0" onclick="exportSavingsJSON()">
+      💾 Backup JSON
+    </button>
+  `;
+
+  document.body.appendChild(menu);
 }
 
 function importData(){
@@ -1965,7 +2147,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   const tools=document.createElement("div");
   tools.style.cssText="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)";
   tools.innerHTML=`
-    <button onclick="exportData()"><span>💾</span> Backup Data</button>
+    <button onclick="showExportMenu()"><span>📤</span> Export Data tabungan </button>
     <button onclick="importData()"><span>📥</span> Pulihkan Data</button>
     <button onclick="window.print()"><span>🖨️</span> Cetak</button>
     <button onclick="clearAllData()" style="color:#984f4a"><span>🗑️</span> Hapus Semua</button>`;
