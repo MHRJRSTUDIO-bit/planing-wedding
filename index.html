@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Planner</title>
+
+<style>
+:root{
+  --primary:#9b6b52;
+  --primary-dark:#76503d;
+  --secondary:#f7eee8;
+  --cream:#fffaf6;
+  --text:#3d332e;
+  --muted:#887b73;
+  --white:#fff;
+  --green:#668b6b;
+  --red:#bd6b67;
+  --border:#eaded6;
+  --shadow:0 8px 30px rgba(89,61,45,.08);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:#f9f5f1;
+  color:var(--text);
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:250px;
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:28px 18px;
+  position:fixed;
+  height:100vh;
+  overflow-y:auto;
+}
+
+.logo{
+  text-align:center;
+  margin-bottom:35px;
+}
+
+.logo .rings{
+  font-size:34px;
+}
+
+.logo h2{
+  margin:8px 0 2px;
+  font-family:Georgia,serif;
+  font-weight:500;
+}
+
+.logo p{
+  color:var(--muted);
+  font-size:12px;
+  margin:0;
+}
+
+.nav button{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:13px 15px;
+  margin:3px 0;
+  border-radius:12px;
+  text-align:left;
+  color:var(--text);
+  cursor:pointer;
+  font-size:14px;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:var(--secondary);
+  color:var(--primary-dark);
+  font-weight:600;
+}
+
+.nav button span{
+  display:inline-block;
+  width:25px;
+}
+
+/* MAIN */
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+  padding:35px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+}
+
+.topbar h1{
+  font-family:Georgia,serif;
+  font-weight:500;
+  margin:0;
+}
+
+.topbar p{
+  color:var(--muted);
+  margin:6px 0 0;
+}
+
+.date-badge{
+  background:#fff;
+  border:1px solid var(--border);
+  padding:10px 15px;
+  border-radius:12px;
+  font-size:13px;
+}
+
+/* SECTIONS */
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+
+.card h3{
+  margin-top:0;
+  font-family:Georgia,serif;
+  font-weight:500;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+.stat{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:var(--shadow);
+}
+
+.stat .icon{
+  font-size:25px;
+}
+
+.stat .label{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:12px;
+}
+
+.stat .value{
+  font-size:25px;
+  font-weight:700;
+  margin-top:5px;
+}
+
+.stat small{
+  color:var(--muted);
+}
+
+/* COUNTDOWN */
+.countdown{
+  background:linear-gradient(135deg,#9b6b52,#c69578);
+  color:white;
+  border-radius:20px;
+  padding:28px;
+  margin-bottom:20px;
+}
+
+.countdown h2{
+  font-family:Georgia,serif;
+  font-weight:400;
+  margin-top:0;
+}
+
+.countdown-box{
+  display:flex;
+  gap:12px;
+}
+
+.time-box{
+  background:rgba(255,255,255,.16);
+  border-radius:12px;
+  padding:14px;
+  min-width:75px;
+  text-align:center;
+}
+
+.time-box strong{
+  display:block;
+  font-size:25px;
+}
+
+.time-box span{
+  font-size:11px;
+  opacity:.85;
+}
+
+/* PROGRESS */
+.progress{
+  height:10px;
+  background:#eee5df;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress-bar{
+  height:100%;
+  background:var(--primary);
+  border-radius:20px;
+  transition:.3s;
+}
+
+/* FORM */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.form-group.full{
+  grid-column:1/-1;
+}
+
+label{
+  font-size:13px;
+  font-weight:600;
+}
+
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 12px;
+  font-family:inherit;
+  background:#fff;
+  color:var(--text);
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+input:focus,select:focus,textarea:focus{
+  outline:2px solid #ead2c4;
+  border-color:var(--primary);
+}
+
+/* BUTTON */
+.btn{
+  border:0;
+  background:var(--primary);
+  color:#fff;
+  padding:11px 17px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.btn:hover{
+  background:var(--primary-dark);
+}
+
+.btn.secondary{
+  background:#f1e7e0;
+  color:var(--primary-dark);
+}
+
+.btn.danger{
+  background:#f6dfdd;
+  color:#984f4a;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* TABLE */
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:13px 10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:13px;
+}
+
+th{
+  color:var(--muted);
+  font-weight:600;
+  background:#fcf9f7;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:11px;
+  background:#eee;
+}
+
+.badge.green{
+  background:#e3f0e4;
+  color:#4d7653;
+}
+
+.badge.orange{
+  background:#f7eadc;
+  color:#976a42;
+}
+
+/* CHECKLIST */
+.check-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.check-item:last-child{
+  border-bottom:0;
+}
+
+.check-item input{
+  width:18px;
+  height:18px;
+  accent-color:var(--primary);
+}
+
+.check-item.done label{
+  text-decoration:line-through;
+  color:var(--muted);
+}
+
+/* TIMELINE */
+.timeline{
+  border-left:2px solid #dfc9ba;
+  margin-left:10px;
+  padding-left:25px;
+}
+
+.timeline-item{
+  position:relative;
+  margin-bottom:25px;
+}
+
+.timeline-item:before{
+  content:"";
+  width:12px;
+  height:12px;
+  background:var(--primary);
+  border-radius:50%;
+  position:absolute;
+  left:-32px;
+  top:5px;
+}
+
+.timeline-item h4{
+  margin:0 0 5px;
+}
+
+.timeline-item p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* EMPTY */
+.empty{
+  text-align:center;
+  padding:35px;
+  color:var(--muted);
+}
+
+/* MOBILE */
+.mobile-header{
+  display:none;
+}
+
+@media(max-width:850px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.3s;
+    z-index:10;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main{
+    margin-left:0;
+    width:100%;
+    padding:20px;
+  }
+
+  .mobile-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+
+  .mobile-header button{
+    border:0;
+    background:#fff;
+    padding:10px;
+    border-radius:10px;
+    font-size:20px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-group.full{
+    grid-column:auto;
+  }
+
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  .countdown-box{
+    flex-wrap:wrap;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="logo">
+    <div class="rings">💍</div>
+    <h2>Wedding Planner</h2>
+    <p>Our journey to forever</p>
+  </div>
+
+  <nav class="nav">
+    <button class="active" onclick="showSection('dashboard',this)">
+      <span>🏠</span> Dashboard
+    </button>
+
+    <button onclick="showSection('data',this)">
+      <span>💑</span> Data Pernikahan
+    </button>
+
+    <button onclick="showSection('budget',this)">
+      <span>💰</span> Budget
+    </button>
+
+    <button onclick="showSection('vendor',this)">
+      <span>🏢</span> Vendor
+    </button>
+
+    <button onclick="showSection('tamu',this)">
+      <span>👥</span> Daftar Tamu
+    </button>
+
+    <button onclick="showSection('checklist',this)">
+      <span>✅</span> Checklist
+    </button>
+
+    <button onclick="showSection('timeline',this)">
+      <span>📅</span> Timeline
+    </button>
+
+    <button onclick="showSection('rundown',this)">
+      <span>📋</span> Rundown
+    </button>
+
+    <button onclick="showSection('catatan',this)">
+      <span>📝</span> Catatan
+    </button>
+  </nav>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<div class="mobile-header">
+  <strong>💍 Wedding Planner</strong>
+  <button onclick="toggleMenu()">☰</button>
+</div>
+
+<div class="topbar">
+  <div>
+    <h1 id="pageTitle">Dashboard</h1>
+    <p>Persiapan menuju hari bahagia 💕</p>
+  </div>
+
+  <div class="date-badge" id="today"></div>
+</div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
+
+  <div class="countdown">
+    <h2 id="coupleTitle">Our Wedding Day</h2>
+    <p id="weddingDateText">Tentukan tanggal pernikahan di menu Data Pernikahan.</p>
+
+    <div class="countdown-box">
+      <div class="time-box">
+        <strong id="days">0</strong>
+        <span>HARI</span>
+      </div>
+
+      <div class="time-box">
+        <strong id="hours">0</strong>
+        <span>JAM</span>
+      </div>
+
+      <div class="time-box">
+        <strong id="minutes">0</strong>
+        <span>MENIT</span>
+      </div>
+
+      <div class="time-box">
+        <strong id="seconds">0</strong>
+        <span>DETIK</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="stat">
+      <div class="icon">💰</div>
+      <div class="label">Total Budget</div>
+      <div class="value" id="dashBudget">Rp 0</div>
+    </div>
+
+    <div class="stat">
+      <div class="icon">💸</div>
+      <div class="label">Sudah Dibayar</div>
+      <div class="value" id="dashPaid">Rp 0</div>
+    </div>
+
+    <div class="stat">
+      <div class="icon">👥</div>
+      <div class="label">Jumlah Tamu</div>
+      <div class="value" id="dashGuests">0</div>
+    </div>
+
+  </div>
+
+  <br>
+
+  <div class="card">
+    <h3>Progress Persiapan</h3>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span>Checklist selesai</span>
+      <strong id="progressText">0%</strong>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- DATA -->
+<section id="data" class="section">
+
+  <div class="card">
+    <h3>💑 Data Pernikahan</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Nama Calon Pengantin Pria</label>
+        <input id="groom" placeholder="Contoh: Andi">
+      </div>
+
+      <div class="form-group">
+        <label>Nama Calon Pengantin Wanita</label>
+        <input id="bride" placeholder="Contoh: Siti">
+      </div>
+
+      <div class="form-group">
+        <label>Tanggal Pernikahan</label>
+        <input type="date" id="weddingDate">
+      </div>
+
+      <div class="form-group">
+        <label>Lokasi Akad</label>
+        <input id="akadLocation" placeholder="Nama lokasi">
+      </div>
+
+      <div class="form-group">
+        <label>Lokasi Resepsi</label>
+        <input id="receptionLocation" placeholder="Nama lokasi">
+      </div>
+
+      <div class="form-group">
+        <label>Target Jumlah Tamu</label>
+        <input type="number" id="guestTarget" placeholder="500">
+      </div>
+
+      <div class="form-group full">
+        <label>Konsep / Tema Pernikahan</label>
+        <input id="theme" placeholder="Contoh: Elegant Garden Wedding">
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="saveWeddingData()">
+      Simpan Data
+    </button>
+  </div>
+
+</section>
+
+
+<!-- BUDGET -->
+<section id="budget" class="section">
+
+  <div class="card">
+    <h3>💰 Budget Pernikahan</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Kategori</label>
+        <input id="budgetCategory" placeholder="Contoh: Catering">
+      </div>
+
+      <div class="form-group">
+        <label>Anggaran</label>
+        <input type="number" id="budgetAmount" placeholder="25000000">
+      </div>
+
+      <div class="form-group">
+        <label>Sudah Dibayar</label>
+        <input type="number" id="budgetPaid" placeholder="5000000">
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="addBudget()">+ Tambah Budget</button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Kategori</th>
+            <th>Anggaran</th>
+            <th>Dibayar</th>
+            <th>Sisa</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="budgetTable"></tbody>
+      </table>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- VENDOR -->
+<section id="vendor" class="section">
+
+  <div class="card">
+    <h3>🏢 Tambah Vendor</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Jenis Vendor</label>
+        <input id="vendorType" placeholder="Fotografi">
+      </div>
+
+      <div class="form-group">
+        <label>Nama Vendor</label>
+        <input id="vendorName" placeholder="Nama vendor">
+      </div>
+
+      <div class="form-group">
+        <label>Kontak</label>
+        <input id="vendorContact" placeholder="08xxxxxxxxxx">
+      </div>
+
+      <div class="form-group">
+        <label>Harga</label>
+        <input type="number" id="vendorPrice">
+      </div>
+
+      <div class="form-group">
+        <label>DP</label>
+        <input type="number" id="vendorDP">
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <select id="vendorStatus">
+          <option>Belum Booking</option>
+          <option>Sudah Booking</option>
+          <option>Lunas</option>
+        </select>
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="addVendor()">+ Tambah Vendor</button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Jenis</th>
+            <th>Vendor</th>
+            <th>Kontak</th>
+            <th>Harga</th>
+            <th>DP</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="vendorTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- TAMU -->
+<section id="tamu" class="section">
+
+  <div class="card">
+    <h3>👥 Daftar Tamu</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Nama Tamu</label>
+        <input id="guestName">
+      </div>
+
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="guestCategory">
+          <option>Keluarga</option>
+          <option>Teman</option>
+          <option>Rekan Kerja</option>
+          <option>Relasi</option>
+          <option>Lainnya</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Jumlah Orang</label>
+        <input type="number" id="guestCount" value="1">
+      </div>
+
+      <div class="form-group">
+        <label>RSVP</label>
+        <select id="guestRSVP">
+          <option>Belum Konfirmasi</option>
+          <option>Hadir</option>
+          <option>Tidak Hadir</option>
+        </select>
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="addGuest()">+ Tambah Tamu</button>
+  </div>
+
+  <div class="card">
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Kategori</th>
+            <th>Jumlah</th>
+            <th>RSVP</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="guestTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CHECKLIST -->
+<section id="checklist" class="section">
+
+  <div class="card">
+    <h3>✅ Checklist Persiapan</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Tambah Checklist</label>
+        <input id="checkInput" placeholder="Contoh: Booking fotografer">
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="addChecklist()">+ Tambah</button>
+  </div>
+
+  <div class="card">
+    <div id="checklistContainer"></div>
+  </div>
+
+</section>
+
+
+<!-- TIMELINE -->
+<section id="timeline" class="section">
+
+  <div class="card">
+
+    <h3>📅 Timeline Persiapan</h3>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <h4>12–9 Bulan Sebelum</h4>
+        <p>Tentukan tanggal, budget, venue, konsep dan vendor utama.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>8–6 Bulan Sebelum</h4>
+        <p>Booking catering, dekorasi, fotografer, busana dan makeup.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>5–3 Bulan Sebelum</h4>
+        <p>Finalisasi tamu, undangan, souvenir, rundown dan administrasi.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>2–1 Bulan Sebelum</h4>
+        <p>Sebarkan undangan dan lakukan finalisasi semua vendor.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>1 Minggu Sebelum</h4>
+        <p>Konfirmasi seluruh vendor, keluarga, dokumen dan perlengkapan.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>H-1</h4>
+        <p>Briefing, cek venue, cek dokumen, mahar, cincin dan istirahat.</p>
+      </div>
+
+      <div class="timeline-item">
+        <h4>Hari H 💍</h4>
+        <p>Nikmati hari bahagia bersama keluarga dan orang-orang tercinta.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- RUNDOWN -->
+<section id="rundown" class="section">
+
+  <div class="card">
+
+    <h3>📋 Rundown Hari H</h3>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label>Waktu</label>
+        <input type="time" id="runTime">
+      </div>
+
+      <div class="form-group">
+        <label>Acara</label>
+        <input id="runEvent" placeholder="Akad Nikah">
+      </div>
+
+      <div class="form-group">
+        <label>PIC</label>
+        <input id="runPIC">
+      </div>
+
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="addRundown()">+ Tambah Acara</button>
+
+  </div>
+
+  <div class="card">
+
+    <div class="table-wrap">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Acara</th>
+            <th>PIC</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="rundownTable"></tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CATATAN -->
+<section id="catatan" class="section">
+
+  <div class="card">
+
+    <h3>📝 Catatan Pernikahan</h3>
+
+    <textarea id="notes"
+      placeholder="Tulis catatan penting"></textarea>
+
+    <br>
+    <button class="btn" onclick="saveNotes()">Simpan Catatan</button>
+  </div>
+</section>
+
+<script>
+/* =========================================================
+   WEDDING PLANNER - COMPLETE LOCAL APP
+   Semua data disimpan di browser (localStorage).
+   Tidak membutuhkan Python/server/database.
+========================================================= */
+
+const STORAGE_KEY = "weddingPlannerData_v2";
+
+const defaultData = {
+  wedding: {
+    groom:"", bride:"", weddingDate:"", akadLocation:"",
+    receptionLocation:"", guestTarget:"", theme:""
+  },
+  budgets: [],
+  vendors: [],
+  guests: [],
+  checklist: [],
+  rundown: [],
+  notes: ""
+};
+
+let data = loadData();
+
+function loadData(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return saved ? {...defaultData, ...saved} : structuredClone(defaultData);
+  }catch(e){
+    return structuredClone(defaultData);
+  }
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateDashboard();
+}
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+function rupiah(n){
+  return new Intl.NumberFormat("id-ID", {
+    style:"currency", currency:"IDR", maximumFractionDigits:0
+  }).format(Number(n)||0);
+}
+
+function showSection(id, btn){
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  const section = document.getElementById(id);
+  if(section) section.classList.add("active");
+
+  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+
+  const titles = {
+    dashboard:"Dashboard", data:"Data Pernikahan", budget:"Budget",
+    vendor:"Vendor", tamu:"Daftar Tamu", checklist:"Checklist",
+    timeline:"Timeline", rundown:"Rundown", catatan:"Catatan"
+  };
+  document.getElementById("pageTitle").textContent = titles[id] || "Wedding Planner";
+
+  const sidebar = document.getElementById("sidebar");
+  if(window.innerWidth <= 850) sidebar.classList.remove("open");
+}
+
+function toggleMenu(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+function fillWeddingForm(){
+  const w=data.wedding;
+  ["groom","bride","weddingDate","akadLocation","receptionLocation","guestTarget","theme"]
+    .forEach(id => {
+      const el=document.getElementById(id);
+      if(el) el.value=w[id] ?? "";
+    });
+}
+
+function saveWeddingData(){
+  ["groom","bride","weddingDate","akadLocation","receptionLocation","guestTarget","theme"]
+    .forEach(id => data.wedding[id]=document.getElementById(id)?.value || "");
+  saveData();
+  renderAll();
+  alert("Data pernikahan berhasil disimpan.");
+}
+
+function addBudget(){
+  const category=document.getElementById("budgetCategory").value.trim();
+  const amount=Number(document.getElementById("budgetAmount").value);
+  const paid=Number(document.getElementById("budgetPaid").value);
+
+  if(!category || amount<0){
+    alert("Isi kategori dan anggaran terlebih dahulu.");
+    return;
+  }
+
+  data.budgets.push({id:Date.now(),category,amount,paid});
+  ["budgetCategory","budgetAmount","budgetPaid"].forEach(id=>document.getElementById(id).value="");
+  saveData(); renderBudgets();
+}
+
+function deleteBudget(id){
+  if(confirm("Hapus data budget ini?")){
+    data.budgets=data.budgets.filter(x=>x.id!==id);
+    saveData(); renderBudgets();
+  }
+}
+
+function renderBudgets(){
+  const tbody=document.getElementById("budgetTable");
+  if(!tbody) return;
+  if(!data.budgets.length){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Belum ada data budget.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.budgets.map(x=>`
+    <tr>
+      <td>${esc(x.category)}</td>
+      <td>${rupiah(x.amount)}</td>
+      <td>${rupiah(x.paid)}</td>
+      <td>${rupiah(Math.max(0,x.amount-x.paid))}</td>
+      <td><button class="btn danger" onclick="deleteBudget(${x.id})">Hapus</button></td>
+    </tr>`).join("");
+}
+
+function addVendor(){
+  const item={
+    id:Date.now(),
+    type:document.getElementById("vendorType").value.trim(),
+    name:document.getElementById("vendorName").value.trim(),
+    contact:document.getElementById("vendorContact").value.trim(),
+    price:Number(document.getElementById("vendorPrice").value)||0,
+    dp:Number(document.getElementById("vendorDP").value)||0,
+    status:document.getElementById("vendorStatus").value
+  };
+  if(!item.type || !item.name){
+    alert("Isi jenis dan nama vendor.");
+    return;
+  }
+  data.vendors.push(item);
+  ["vendorType","vendorName","vendorContact","vendorPrice","vendorDP"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("vendorStatus").value="Belum Booking";
+  saveData(); renderVendors();
+}
+
+function deleteVendor(id){
+  if(confirm("Hapus vendor ini?")){
+    data.vendors=data.vendors.filter(x=>x.id!==id);
+    saveData(); renderVendors();
+  }
+}
+
+function renderVendors(){
+  const tbody=document.getElementById("vendorTable");
+  if(!tbody) return;
+  if(!data.vendors.length){
+    tbody.innerHTML='<tr><td colspan="7" class="empty">Belum ada vendor.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.vendors.map(x=>`
+    <tr>
+      <td>${esc(x.type)}</td>
+      <td>${esc(x.name)}</td>
+      <td>${esc(x.contact)}</td>
+      <td>${rupiah(x.price)}</td>
+      <td>${rupiah(x.dp)}</td>
+      <td><span class="badge ${x.status==="Lunas"?"green":"orange"}">${esc(x.status)}</span></td>
+      <td><button class="btn danger" onclick="deleteVendor(${x.id})">Hapus</button></td>
+    </tr>`).join("");
+}
+
+function addGuest(){
+  const item={
+    id:Date.now(),
+    name:document.getElementById("guestName").value.trim(),
+    category:document.getElementById("guestCategory").value,
+    count:Math.max(1,Number(document.getElementById("guestCount").value)||1),
+    rsvp:document.getElementById("guestRSVP").value
+  };
+  if(!item.name){
+    alert("Isi nama tamu.");
+    return;
+  }
+  data.guests.push(item);
+  document.getElementById("guestName").value="";
+  document.getElementById("guestCount").value=1;
+  document.getElementById("guestRSVP").value="Belum Konfirmasi";
+  saveData(); renderGuests();
+}
+
+function deleteGuest(id){
+  if(confirm("Hapus tamu ini?")){
+    data.guests=data.guests.filter(x=>x.id!==id);
+    saveData(); renderGuests();
+  }
+}
+
+function renderGuests(){
+  const tbody=document.getElementById("guestTable");
+  if(!tbody) return;
+  if(!data.guests.length){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Belum ada tamu.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.guests.map(x=>`
+    <tr>
+      <td>${esc(x.name)}</td>
+      <td>${esc(x.category)}</td>
+      <td>${x.count}</td>
+      <td><span class="badge ${x.rsvp==="Hadir"?"green":x.rsvp==="Tidak Hadir"?"":"orange"}">${esc(x.rsvp)}</span></td>
+      <td><button class="btn danger" onclick="deleteGuest(${x.id})">Hapus</button></td>
+    </tr>`).join("");
+}
+
+function addChecklist(){
+  const input=document.getElementById("checkInput");
+  const text=input.value.trim();
+  if(!text){ alert("Isi checklist."); return; }
+  data.checklist.push({id:Date.now(),text,done:false});
+  input.value="";
+  saveData(); renderChecklist();
+}
+
+function toggleChecklist(id){
+  const item=data.checklist.find(x=>x.id===id);
+  if(item) item.done=!item.done;
+  saveData(); renderChecklist();
+}
+
+function deleteChecklist(id){
+  data.checklist=data.checklist.filter(x=>x.id!==id);
+  saveData(); renderChecklist();
+}
+
+function renderChecklist(){
+  const box=document.getElementById("checklistContainer");
+  if(!box) return;
+  if(!data.checklist.length){
+    box.innerHTML='<div class="empty">Belum ada checklist.</div>';
+    return;
+  }
+  box.innerHTML=data.checklist.map(x=>`
+    <div class="check-item ${x.done?"done":""}">
+      <input type="checkbox" ${x.done?"checked":""} onchange="toggleChecklist(${x.id})">
+      <label style="flex:1">${esc(x.text)}</label>
+      <button class="btn danger" onclick="deleteChecklist(${x.id})">Hapus</button>
+    </div>`).join("");
+}
+
+function addRundown(){
+  const item={
+    id:Date.now(),
+    time:document.getElementById("runTime").value,
+    event:document.getElementById("runEvent").value.trim(),
+    pic:document.getElementById("runPIC").value.trim()
+  };
+  if(!item.time || !item.event){
+    alert("Isi waktu dan acara.");
+    return;
+  }
+  data.rundown.push(item);
+  data.rundown.sort((a,b)=>a.time.localeCompare(b.time));
+  document.getElementById("runTime").value="";
+  document.getElementById("runEvent").value="";
+  document.getElementById("runPIC").value="";
+  saveData(); renderRundown();
+}
+
+function deleteRundown(id){
+  if(confirm("Hapus acara ini?")){
+    data.rundown=data.rundown.filter(x=>x.id!==id);
+    saveData(); renderRundown();
+  }
+}
+
+function renderRundown(){
+  const tbody=document.getElementById("rundownTable");
+  if(!tbody) return;
+  if(!data.rundown.length){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada rundown.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.rundown.map(x=>`
+    <tr>
+      <td>${esc(x.time)}</td>
+      <td>${esc(x.event)}</td>
+      <td>${esc(x.pic)}</td>
+      <td><button class="btn danger" onclick="deleteRundown(${x.id})">Hapus</button></td>
+    </tr>`).join("");
+}
+
+function saveNotes(){
+  data.notes=document.getElementById("notes").value;
+  saveData();
+  alert("Catatan tersimpan.");
+}
+
+function updateDashboard(){
+  const total=data.budgets.reduce((s,x)=>s+Number(x.amount||0),0);
+  const paid=data.budgets.reduce((s,x)=>s+Number(x.paid||0),0);
+  const guests=data.guests.reduce((s,x)=>s+Number(x.count||0),0);
+  const done=data.checklist.filter(x=>x.done).length;
+  const totalChecks=data.checklist.length;
+  const progress=totalChecks ? Math.round(done/totalChecks*100) : 0;
+
+  document.getElementById("dashBudget").textContent=rupiah(total);
+  document.getElementById("dashPaid").textContent=rupiah(paid);
+  document.getElementById("dashGuests").textContent=guests;
+  document.getElementById("progressText").textContent=progress+"%";
+  document.getElementById("progressBar").style.width=progress+"%";
+
+  const w=data.wedding;
+  const names=[w.groom,w.bride].filter(Boolean).join(" & ");
+  document.getElementById("coupleTitle").textContent=names || "Our Wedding Day";
+  document.getElementById("weddingDateText").textContent=w.weddingDate
+    ? "Tanggal pernikahan: "+formatDate(w.weddingDate)
+    : "Tentukan tanggal pernikahan di menu Data Pernikahan.";
+}
+
+function formatDate(value){
+  const d=new Date(value+"T00:00:00");
+  if(Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+}
+
+function countdown(){
+  const date=data.wedding.weddingDate;
+  if(!date){
+    ["days","hours","minutes","seconds"].forEach(id=>document.getElementById(id).textContent="0");
+    return;
+  }
+  const target=new Date(date+"T00:00:00").getTime();
+  const diff=target-Date.now();
+  if(diff<=0){
+    ["days","hours","minutes","seconds"].forEach(id=>document.getElementById(id).textContent="0");
+    return;
+  }
+  document.getElementById("days").textContent=Math.floor(diff/86400000);
+  document.getElementById("hours").textContent=Math.floor(diff%86400000/3600000);
+  document.getElementById("minutes").textContent=Math.floor(diff%3600000/60000);
+  document.getElementById("seconds").textContent=Math.floor(diff%60000/1000);
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="wedding-planner-backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(){
+  const input=document.createElement("input");
+  input.type="file";
+  input.accept=".json,application/json";
+  input.onchange=()=>{
+    const file=input.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const imported=JSON.parse(reader.result);
+        data={...structuredClone(defaultData),...imported};
+        saveData(); renderAll(); fillWeddingForm();
+        document.getElementById("notes").value=data.notes||"";
+        alert("Backup berhasil dipulihkan.");
+      }catch(e){ alert("File backup tidak valid."); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function clearAllData(){
+  if(!confirm("Hapus SEMUA data Wedding Planner?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  data=structuredClone(defaultData);
+  renderAll(); fillWeddingForm();
+  document.getElementById("notes").value="";
+  alert("Semua data telah dihapus.");
+}
+
+function renderAll(){
+  renderBudgets();
+  renderVendors();
+  renderGuests();
+  renderChecklist();
+  renderRundown();
+  updateDashboard();
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("today").textContent =
+    new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  fillWeddingForm();
+  document.getElementById("notes").value=data.notes||"";
+  renderAll();
+  countdown();
+  setInterval(countdown,1000);
+
+  // Enter pada field checklist/rundown mempermudah input.
+  document.getElementById("checkInput")?.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();addChecklist();}
+  });
+  document.getElementById("runEvent")?.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();addRundown();}
+  });
+
+  // Auto-save catatan ketika meninggalkan textarea.
+  document.getElementById("notes")?.addEventListener("blur",saveNotes);
+});
+</script>
+<script>
+/* Tambahkan panel utilitas ke sidebar tanpa mengubah desain utama. */
+document.addEventListener("DOMContentLoaded",()=>{
+  const nav=document.querySelector(".nav");
+  if(!nav) return;
+  const tools=document.createElement("div");
+  tools.style.cssText="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)";
+  tools.innerHTML=`
+    <button onclick="exportData()"><span>💾</span> Backup Data</button>
+    <button onclick="importData()"><span>📥</span> Pulihkan Data</button>
+    <button onclick="window.print()"><span>🖨️</span> Cetak</button>
+    <button onclick="clearAllData()" style="color:#984f4a"><span>🗑️</span> Hapus Semua</button>`;
+  nav.appendChild(tools);
+});
+</script>
+</body>
+</html>
