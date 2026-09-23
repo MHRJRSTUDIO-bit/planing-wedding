@@ -473,6 +473,8 @@ th{
   }
 }
 </style>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -1019,7 +1021,19 @@ th{
    Tidak membutuhkan Python/server/database.
 ========================================================= */
 
-const STORAGE_KEY = "weddingPlannerData_v2";
+/* =========================================================
+   WEDDING PLANNER + SUPABASE
+   Semua data disimpan ke satu row di tabel wedding_data.
+   Ganti SUPABASE_URL dan SUPABASE_ANON_KEY dengan milik Anda.
+========================================================= */
+
+const SUPABASE_URL = "https://tyrtweiupblztlevardv.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Ia6xoHAQsvr3LTA-l1rKOQ_clvd43fY";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
 const defaultData = {
   wedding: {
@@ -1034,20 +1048,47 @@ const defaultData = {
   notes: ""
 };
 
-let data = loadData();
+let data = structuredClone(defaultData);
 
-function loadData(){
+async function loadDataFromSupabase(){
   try{
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return saved ? {...defaultData, ...saved} : structuredClone(defaultData);
-  }catch(e){
-    return structuredClone(defaultData);
+    const { data: row, error } = await supabaseClient
+      .from("wedding_data")
+      .select("data")
+      .eq("id", 1)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(row?.data){
+      data = {
+        ...structuredClone(defaultData),
+        ...row.data
+      };
+    }
+  }catch(error){
+    console.error("Gagal mengambil data dari Supabase:", error);
+    alert("Data Supabase belum bisa dimuat. Periksa URL, Anon Key, tabel, dan RLS.");
   }
 }
 
-function saveData(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  updateDashboard();
+async function saveData(){
+  try{
+    const { error } = await supabaseClient
+      .from("wedding_data")
+      .upsert({
+        id: 1,
+        data: data,
+        updated_at: new Date().toISOString()
+      });
+
+    if(error) throw error;
+
+    updateDashboard();
+  }catch(error){
+    console.error("Gagal menyimpan ke Supabase:", error);
+    alert("Gagal menyimpan data ke Supabase. Periksa koneksi dan RLS.");
+  }
 }
 
 function esc(v){
@@ -1408,9 +1449,12 @@ function renderAll(){
   updateDashboard();
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("today").textContent =
     new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  // Ambil data terbaru dari Supabase sebelum menampilkan aplikasi.
+  await loadDataFromSupabase();
 
   fillWeddingForm();
   document.getElementById("notes").value=data.notes||"";
@@ -1431,7 +1475,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 <script>
-/* Tambahkan panel utilitas ke sidebar tanpa mengubah desain utama. */
+/* Panel utilitas sidebar tanpa mengubah desain utama. */
 document.addEventListener("DOMContentLoaded",()=>{
   const nav=document.querySelector(".nav");
   if(!nav) return;
