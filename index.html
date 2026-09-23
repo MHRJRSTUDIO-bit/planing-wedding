@@ -3,29 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wedding Planner</title>
+<title>Elegant Wedding Planner</title>
 
 <style>
+/* DARK ELEGANT THEME */
 :root{
-  --primary:#9b6b52;
-  --primary-dark:#76503d;
-  --secondary:#f7eee8;
-  --cream:#fffaf6;
-  --text:#3d332e;
-  --muted:#887b73;
-  --white:#fff;
-  --green:#668b6b;
-  --red:#bd6b67;
-  --border:#eaded6;
-  --shadow:0 8px 30px rgba(89,61,45,.08);
+  --primary:#c9a66b;
+  --primary-dark:#a88650;
+  --secondary:#29251f;
+  --cream:#151311;
+  --text:#eee8de;
+  --muted:#aaa196;
+  --white:#1d1a17;
+  --green:#91a887;
+  --red:#c98278;
+  --border:#3b352d;
+  --shadow:0 14px 40px rgba(0,0,0,.30);
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Inter,Arial,sans-serif;
-  background:#f9f5f1;
+  font-family:"Inter",Arial,sans-serif;
+  background:linear-gradient(135deg,#fbf9f5 0%,#f5efe7 100%);
   color:var(--text);
 }
 
@@ -37,8 +38,9 @@ body{
 /* SIDEBAR */
 .sidebar{
   width:250px;
-  background:#fff;
+  background:rgba(255,255,255,.96);
   border-right:1px solid var(--border);
+  box-shadow:8px 0 30px rgba(55,43,31,.04);
   padding:28px 18px;
   position:fixed;
   height:100vh;
@@ -136,8 +138,8 @@ body{
 .card{
   background:#fff;
   border:1px solid var(--border);
-  border-radius:18px;
-  padding:22px;
+  border-radius:20px;
+  padding:24px;
   box-shadow:var(--shadow);
   margin-bottom:20px;
 }
@@ -157,8 +159,8 @@ body{
 .stat{
   background:#fff;
   border:1px solid var(--border);
-  border-radius:18px;
-  padding:22px;
+  border-radius:20px;
+  padding:24px;
   box-shadow:var(--shadow);
 }
 
@@ -184,7 +186,7 @@ body{
 
 /* COUNTDOWN */
 .countdown{
-  background:linear-gradient(135deg,#9b6b52,#c69578);
+  background:linear-gradient(135deg,#3b332c 0%,#6f5a45 55%,#b08d57 100%);
   color:white;
   border-radius:20px;
   padding:28px;
@@ -280,9 +282,9 @@ input:focus,select:focus,textarea:focus{
 /* BUTTON */
 .btn{
   border:0;
-  background:var(--primary);
+  background:linear-gradient(135deg,var(--primary),#c2a06a);
   color:#fff;
-  padding:11px 17px;
+  padding:11px 18px;
   border-radius:10px;
   cursor:pointer;
   font-weight:600;
@@ -290,6 +292,7 @@ input:focus,select:focus,textarea:focus{
 
 .btn:hover{
   background:var(--primary-dark);
+  transform:translateY(-1px);
 }
 
 .btn.secondary{
@@ -472,6 +475,174 @@ th{
     flex-wrap:wrap;
   }
 }
+
+/* ELEGANT THEME */
+.logo h2,.card h3,.topbar h1,.countdown h2{
+  letter-spacing:.2px;
+}
+.logo .rings{
+  filter:drop-shadow(0 4px 8px rgba(176,141,87,.25));
+}
+.logo h2{
+  color:#3b332c;
+}
+.nav button{
+  transition:all .2s ease;
+}
+.nav button:hover,
+.nav button.active{
+  box-shadow:inset 3px 0 0 var(--primary);
+}
+.card,.stat{
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.card:hover,.stat:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 40px rgba(55,43,31,.10);
+}
+.btn{
+  box-shadow:0 5px 14px rgba(176,141,87,.18);
+  transition:all .2s ease;
+}
+.countdown{
+  position:relative;
+  overflow:hidden;
+}
+.countdown:after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:50%;
+  right:-80px;
+  top:-100px;
+}
+
+body{
+  background:radial-gradient(circle at top right,#29231b 0%,#151311 42%,#100f0d 100%);
+  color:var(--text);
+}
+
+.sidebar{
+  background:rgba(25,22,19,.97);
+  border-right:1px solid var(--border);
+  box-shadow:8px 0 30px rgba(0,0,0,.25);
+}
+
+.logo h2,.topbar h1,.card h3,.countdown h2{
+  color:#f2eadc;
+}
+
+.logo p,.topbar p,.stat .label,.stat small,.timeline-item p{
+  color:var(--muted);
+}
+
+.nav button{
+  color:#ddd4c8;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:#29251f;
+  color:#e0bd7c;
+  box-shadow:inset 3px 0 0 var(--primary);
+}
+
+.date-badge,
+.card,
+.stat{
+  background:rgba(29,26,23,.94);
+  border-color:var(--border);
+}
+
+.card,.stat{
+  box-shadow:var(--shadow);
+}
+
+input,select,textarea{
+  background:#211e1a;
+  color:#eee8de;
+  border-color:#463e34;
+}
+
+input::placeholder,textarea::placeholder{
+  color:#81786d;
+}
+
+input:focus,select:focus,textarea:focus{
+  outline:2px solid rgba(201,166,107,.22);
+  border-color:var(--primary);
+}
+
+th{
+  color:#aaa196;
+  background:#24211d;
+}
+
+th,td{
+  border-bottom-color:#3b352d;
+}
+
+.countdown{
+  background:linear-gradient(135deg,#29231c 0%,#4a3b29 55%,#8a6b3f 100%);
+}
+
+.time-box{
+  background:rgba(255,255,255,.10);
+}
+
+.progress{
+  background:#322c25;
+}
+
+.btn.secondary{
+  background:#332d25;
+  color:#e0bd7c;
+}
+
+.btn.danger{
+  background:#3a2926;
+  color:#df9990;
+}
+
+.badge{
+  background:#36312b;
+  color:#ddd4c8;
+}
+
+.badge.green{
+  background:#29362c;
+  color:#a8c29f;
+}
+
+.badge.orange{
+  background:#3c3024;
+  color:#d9ad72;
+}
+
+.mobile-header button{
+  background:#29251f;
+  color:#eee8de;
+}
+
+.timeline{
+  border-left-color:#665238;
+}
+
+.timeline-item:before{
+  background:var(--primary);
+}
+
+.empty{
+  color:#8f877c;
+}
+
+::selection{
+  background:#c9a66b;
+  color:#151311;
+}
+
 </style>
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1027,8 +1198,8 @@ th{
    Ganti SUPABASE_URL dan SUPABASE_ANON_KEY dengan milik Anda.
 ========================================================= */
 
-const SUPABASE_URL = "https://tyrtweiupblztlevardv.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_Ia6xoHAQsvr3LTA-l1rKOQ_clvd43fY";
+const SUPABASE_URL = "GANTI_DENGAN_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "GANTI_DENGAN_SUPABASE_ANON_KEY";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
